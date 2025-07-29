@@ -1,6 +1,39 @@
-import React from 'react'
+import React, { useRef, useState } from 'react'
 import Button from './Button'
 import AnimatedTitle from './AnimatedTitle'
+
+const DivTilt = ({ children, className = '' }) => {
+
+  const [transformStyle, setTransformStyle] = useState('');
+
+  const itemRef = useRef();
+
+  const handleMouseMove = (e) => {
+    if (!itemRef.current) return;
+
+    const { left, top, width, height } = itemRef.current.getBoundingClientRect();
+
+    const relativeX = (e.clientX - left) / width;
+    const relativeY = (e.clientY - top) / height;
+
+    const tiltX = (relativeY - 0.5) * 5;
+    const tiltY = (relativeX - 0.5) * -5;
+
+    const newTransform = `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(0.98,0.98,0.98)`
+
+    setTransformStyle(newTransform)
+  }
+
+  const handleMouseLeave = (e) => {
+    setTransformStyle('')
+  }
+
+  return (
+    <div className={className} ref={itemRef} onMouseMove={handleMouseMove} onMouseLeave={handleMouseLeave} style={{ transform: transformStyle }}>
+      {children}
+    </div>
+  )
+}
 
 const ImageClipBox = ({ src, clipClass }) => (
   <div className={clipClass}>
@@ -11,7 +44,7 @@ const ImageClipBox = ({ src, clipClass }) => (
 const Contact = () => {
   return (
     <div id='contact' className='my-20 min-h-96 w-screen px-10'>
-      <div className='relative rounded-lg bg-black py-24 text-[#DFDFF0] sm:overflow-hidden'>
+      <DivTilt className='relative rounded-lg bg-black py-24 text-[#DFDFF0] sm:overflow-hidden transition-all duration-75'>
         <div className='absolute -left-20 top-0 hidden h-full w-72 overflow-hidden sm:block lg:left-20 lg:w-96'>
           <ImageClipBox src="img/contact-1.webp" clipClass="contact-clip-path-1" />
           <ImageClipBox src="img/contact-2.webp" clipClass="contact-clip-path-2 lg:translate-y-40 translate-y-60" />
@@ -30,7 +63,7 @@ const Contact = () => {
           />
           <Button title={"Contact Us"} containerClass="mt-10 cursor-pointer" />
         </div>
-      </div>
+      </DivTilt>
     </div>
   )
 }
